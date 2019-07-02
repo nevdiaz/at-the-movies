@@ -32,4 +32,4 @@ build/
 
 ### Database ###
 derby.log
-/movies.db
+/movies_db
