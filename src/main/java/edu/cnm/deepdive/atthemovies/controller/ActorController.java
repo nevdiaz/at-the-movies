@@ -1,9 +1,11 @@
 package edu.cnm.deepdive.atthemovies.controller;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.cnm.deepdive.atthemovies.model.dao.ActorReposistory;
 import edu.cnm.deepdive.atthemovies.model.dao.MovieRepository;
 import edu.cnm.deepdive.atthemovies.model.entity.Actor;
 import edu.cnm.deepdive.atthemovies.model.entity.Movie;
+import edu.cnm.deepdive.atthemovies.view.FlatActor;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -40,11 +42,13 @@ public class ActorController {
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @JsonSerialize(contentAs = FlatActor.class)
   public List<Actor> list() {
     return reposistory.getAllByOrderByName();
   }
 
   @GetMapping(value = "search", produces = MediaType.APPLICATION_JSON_VALUE)
+  @JsonSerialize(contentAs = FlatActor.class)
   public List<Actor> search(@RequestParam(value = "q", required = true) String nameFragment) {
     return reposistory.getAllByNameContainsOrderByNameAsc(nameFragment);
   }
@@ -58,6 +62,12 @@ public class ActorController {
   @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Actor get(@PathVariable("id") UUID id) {
     return reposistory.findById(id).get();
+  }
+
+  @DeleteMapping(value = "{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable("id") UUID id) {
+    reposistory.delete(get(id));
   }
 
   @PutMapping(value = "{actorId}/movies/{movieId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -75,8 +85,8 @@ public class ActorController {
   public void detach(@PathVariable("actorId") UUID actorId, @PathVariable("movieId") UUID movieId) {
     Actor actor = get(actorId);
     Movie movie = movieRepository.findById(movieId).get();
-      actor.getMovies().remove(movie);
-      reposistory.save(actor);
+    actor.getMovies().remove(movie);
+    reposistory.save(actor);
   }
 
   @ResponseStatus(value = HttpStatus.NOT_FOUND)
