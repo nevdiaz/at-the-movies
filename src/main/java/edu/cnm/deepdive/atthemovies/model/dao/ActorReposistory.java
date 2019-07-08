@@ -7,6 +7,9 @@ import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ActorReposistory extends CrudRepository<Actor, UUID> {
-//TODO Declare any required query method
+
   List<Actor> getAllByOrderByName();
+
+  List<Actor> getAllByNameContainsOrderByNameAsc(String nameFragment);
+
 }

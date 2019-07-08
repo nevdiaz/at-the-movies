@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 @Entity
 @Component
-@JsonIgnoreProperties(value = {"id", "created", "updated", "href"}, allowGetters = true,
+@JsonIgnoreProperties(value = {"created", "updated", "href"}, allowGetters = true,
     ignoreUnknown = true)
 
 public class Movie {
@@ -32,7 +32,7 @@ public class Movie {
 
   @Id
   @GeneratedValue(generator = "uuid2")
-  @GenericGenerator(name="uuid2", strategy= "uuid2")
+  @GenericGenerator(name = "uuid2", strategy = "uuid2")
   @Column(name = "movie_id", columnDefinition = "CHAR(16) FOR BIT DATA",
       nullable = false, updatable = false)
   private UUID id;
@@ -92,22 +92,22 @@ public class Movie {
     this.genre = genre;
   }
 
-  public URI getHref(){
+  public URI getHref() {
     return entityLinks.linkForSingleResource(Movie.class, id).toUri();
   }
 
 
   @PostConstruct
-  private void init(){
-    String ignore =entityLinks.toString();
+  private void init() {
+    String ignore = entityLinks.toString();
   }
 
   @Autowired
-  private void setEntityLinks(EntityLinks entityLinks){
-    Movie.entityLinks =entityLinks;
+  private void setEntityLinks(EntityLinks entityLinks) {
+    Movie.entityLinks = entityLinks;
   }
 
-  public enum Genre{
+  public enum Genre {
     ACTION, INDIE, ROM_COM, HORROR, DOCUMENTARY, ANIME, SCI_FI, FANTASY
   }
 }
