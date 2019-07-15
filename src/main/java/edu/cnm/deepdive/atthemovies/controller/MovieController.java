@@ -1,10 +1,11 @@
 package edu.cnm.deepdive.atthemovies.controller;
 
 import edu.cnm.deepdive.atthemovies.model.dao.ActorReposistory;
+import edu.cnm.deepdive.atthemovies.model.dao.GenreRepository;
 import edu.cnm.deepdive.atthemovies.model.dao.MovieRepository;
 import edu.cnm.deepdive.atthemovies.model.entity.Actor;
+import edu.cnm.deepdive.atthemovies.model.entity.Genre;
 import edu.cnm.deepdive.atthemovies.model.entity.Movie;
-import edu.cnm.deepdive.atthemovies.model.entity.Movie.Genre;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -33,19 +34,23 @@ public class MovieController {
 
   private final MovieRepository repository;
   private final ActorReposistory actorReposistory;
+  private final GenreRepository genreRepository;
 
   @Autowired
   public MovieController(MovieRepository repository,
-      ActorReposistory actorReposistory) {
+      ActorReposistory actorReposistory,
+      GenreRepository genreRepository) {
     this.repository = repository;
     this.actorReposistory = actorReposistory;
+    this.genreRepository = genreRepository;
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<Movie> list(@RequestParam(value = "genre", required = false) Genre genre) {
-    if (genre == null) {
+  public List<Movie> list(@RequestParam(value = "genre", required = false) UUID genreId) {
+    if (genreId == null) {
       return repository.getAllByOrderByTitleAsc();
     } else {
+      Genre genre = genreRepository.findById(genreId).get();
       return repository.getAllByGenreOrderByTitleAsc(genre);
     }
   }
@@ -67,12 +72,22 @@ public class MovieController {
     return repository.findById(id).get();
   }
 
+  @PutMapping(value = "{id}",
+  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Movie put(@PathVariable("id") UUID id, @RequestBody Movie movie) {
+    Movie existingMovie = repository.findById(id).get();
+    existingMovie.setGenre(movie.getGenre());
+    existingMovie.setScreenwriter(movie.getScreenwriter());
+    existingMovie.setTitle(movie.getTitle());
+    return repository.save(existingMovie);
+  }
+
   @Transactional
   @DeleteMapping(value = "{id}")
-  public void delete(@PathVariable("id") UUID id){
+  public void delete(@PathVariable("id") UUID id) {
     Movie movie = get(id);
     List<Actor> actors = movie.getActors();
-    actors.forEach((actor) -> actor.getMovies().remove(movie) );
+    actors.forEach((actor) -> actor.getMovies().remove(movie));
     actorReposistory.saveAll(actors);
     repository.delete(movie);
   }

@@ -71,10 +71,11 @@ public class ActorController {
   }
 
   @PutMapping(value = "{actorId}/movies/{movieId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Actor attach(@PathVariable("actorId") UUID actorId, @PathVariable("movieId") UUID movieId) {
+  public Actor attach(@PathVariable("actorId") UUID actorId,
+      @PathVariable("movieId") UUID movieId) {
     Actor actor = get(actorId);
     Movie movie = movieRepository.findById(movieId).get();
-    if (!actor.getMovies().contains(movie)){
+    if (!actor.getMovies().contains(movie)) {
       actor.getMovies().add(movie);
     }
     return reposistory.save(actor);
